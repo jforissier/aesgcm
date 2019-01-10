@@ -366,7 +366,7 @@ static void decode_wrapper(int argc, char *argv[])
 	VV(printf("Tag is:\n"););
 	VV(BIO_dump_fp(stdout, tag, tag_size););
 	VV(printf("Ciphertext:\n"););
-	VV(BIO_dump_fp(stdout, out, out_size););
+	VV(BIO_dump_fp(stdout, in, in_size););
 
 	out_size = decrypt(in, in_size, "", 0, tag, key, iv, iv_size, out);
 	if (out_size != in_size)
