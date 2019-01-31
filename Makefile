@@ -23,7 +23,7 @@ iv:
 	printf "\x10\x11\x12\x13\x14\x15\x16\x17\x18\x19\x1a\x1b" >$@
 
 plaintext:
-	echo "The quick brown fox jumps over the lazy dog" >$@
+	dd if=/dev/zero of=$@ bs=1 count=1500
 
 test: aesgcm key iv plaintext
 	./aesgcm enc $(VFLAGS) -key key -iv iv -in plaintext -out ciphertext -tag tag
