@@ -179,8 +179,7 @@ static void *read_file(const char *fname, size_t *fsize)
 			buf = realloc(buf, bufsize);
 			if (!buf)
 				errx(1, "out of memory");
-			if (!p)
-				p = buf;
+			p = (unsigned char *)buf + rd;
 		}
 again:
 		n = fread(p, 1, 1024, file);
