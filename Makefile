@@ -13,8 +13,11 @@ ifeq ($(V),1)
 VFLAGS=-v -v
 endif
 
+LDFLAGS=
+
 aesgcm: aesgcm.c
-	$(CC) -g -o $@ $< -lcrypto
+	$(CC) -g -DAES_256 -o $@256 $< $(LDFLAGS) -lcrypto
+	$(CC) -g -DAES_128 -o $@128 $< $(LDFLAGS) -lcrypto
 
 key:
 	printf "\x20\x21\x22\x23\x24\x25\x26\x27\x28\x29\x2a\x2b\x2c\x2d\x2e\x2f" >$@
