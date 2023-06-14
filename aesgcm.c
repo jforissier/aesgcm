@@ -8,6 +8,16 @@
 
 static int verbose;
 
+#ifdef AES_128
+#define crypto_function EVP_aes_128_gcm
+#define crypto_name "AES-128-GCM"
+#define crypto_key_size 16
+#elif AES_256
+#define crypto_function EVP_aes_256_gcm
+#define crypto_name "AES-256-GCM"
+#define crypto_key_size 32
+#endif
+
 #define V(x) do { if (verbose) { x } } while (0)
 #define VV(x) do { if (verbose >= 2) { x } } while (0)
 
@@ -47,7 +57,7 @@ int encrypt(unsigned char *plaintext, int plaintext_len, unsigned char *aad,
 	if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
 
 	/* Initialise the encryption operation. */
-	if(1 != EVP_EncryptInit_ex(ctx, EVP_aes_128_gcm(), NULL, NULL, NULL))
+	if(1 != EVP_EncryptInit_ex(ctx, crypto_function(), NULL, NULL, NULL))
 		handleErrors();
 
 	/* Set IV length if default 12 bytes (96 bits) is not appropriate */
@@ -104,7 +114,7 @@ int decrypt(unsigned char *ciphertext, int ciphertext_len, unsigned char *aad,
 	if(!(ctx = EVP_CIPHER_CTX_new())) handleErrors();
 
 	/* Initialise the decryption operation. */
-	if(!EVP_DecryptInit_ex(ctx, EVP_aes_128_gcm(), NULL, NULL, NULL))
+	if(!EVP_DecryptInit_ex(ctx, crypto_function(), NULL, NULL, NULL))
 		handleErrors();
 
 	/* Set IV length. Not necessary if this is 12 bytes (96 bits) */
@@ -240,8 +250,8 @@ static void encode_wrapper(int argc, char *argv[])
 				errx(1, "-key: missing file name");
 			key = read_file(argv[i], &key_size);
 			assert(key);
-			if (key_size != 16)
-				errx(1, "-key: key size has to be 16 bytes");
+			if (key_size != crypto_key_size)
+				errx(1, "-key: key size has to be %u bytes", crypto_key_size);
 		}
 		if (!strcmp(argv[i], "-iv")) {
 			i++;
@@ -326,8 +336,8 @@ static void decode_wrapper(int argc, char *argv[])
 				errx(1, "-key: missing file name");
 			key = read_file(argv[i], &key_size);
 			assert(key);
-			if (key_size != 16)
-				errx(1, "-key: key size has to be 16 bytes");
+			if (key_size != crypto_key_size)
+				errx(1, "-key: key size has to be %u bytes", crypto_key_size);
 		}
 		if (!strcmp(argv[i], "-iv")) {
 			i++;
@@ -394,6 +404,7 @@ int main(int argc, char *argv[])
 {
 	int i;
 
+  printf("%s encoder/decoder\n", crypto_name);
 	OpenSSL_add_all_algorithms();
 	ERR_load_crypto_strings();	 
 
